@@ -20,6 +20,7 @@ Each component is a standalone service that can be run independently or via Dock
 | --- | --- | --- |
 | **Sequencer** | `sequencer/` | Maintaining database and posting updates. |
 | **Indexer** | `indexer/` | Channel monitoring and reconstructing database based on updates. |
+| **Common Password Manager Functionality** | `common/` | Password manager code used by both the sequencer and indexer. |
 
 ---
 
