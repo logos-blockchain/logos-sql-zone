@@ -1,0 +1,35 @@
+[package]
+categories  = { workspace = true }
+description = "Shared utilities for SQLite zone demo crates"
+edition     = { workspace = true }
+keywords    = { workspace = true }
+license     = { workspace = true }
+name        = "demo-sqlite-common"
+readme      = { workspace = true }
+repository  = { workspace = true }
+version     = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+arboard                   = "3.4.1"
+argon2                    = { features = ["std", "zeroize"], version = "0.5" }
+block-padding             = { features = ["std"], version = "0.3" }
+chacha20poly1305          = { features = ["std"], version = "0.10" }
+chrono                    = { features = ["serde"], version = "0.4" }
+crypto-common             = { features = ["std"], version = "0.1.6" }
+directories               = "6.0"
+logos-blockchain-zone-sdk = { path = "../logos-blockchain/zone-sdk" }
+nanosql                   = { features = ["chrono"], version = "0.10.0" }
+rand                      = { version = "0.9" }
+ratatui                   = { features = ["serde"], version = "0.29" }
+serde                     = { features = ["derive"], workspace = true }
+serde_json                = { workspace = true }
+thiserror                 = { workspace = true }
+tracing-subscriber        = { features = ["env-filter"], version = "0.3" }
+zeroize                   = { features = ["alloc"], workspace = true }
+
+[dev-dependencies]
+rand   = { version = "0.9" }
+zxcvbn = "3"

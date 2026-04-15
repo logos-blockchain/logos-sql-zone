@@ -24,6 +24,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/logos-blockchain" && pwd)"
 DATA_DIR="$SCRIPT_DIR/data"
 
+# Will be overwritten by env file if set there
+BUILD_DIR="$SCRIPT_DIR"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -90,7 +93,7 @@ while [[ $# -gt 0 ]]; do
             CHECKPOINT_PATH="$2"
             shift 2
             ;;
-        --sequencer-node-endpoint)
+        --indexer-node-endpoint)
             INDEXER_NODE_ENDPOINT="$2"
             shift 2
             ;;
@@ -151,18 +154,18 @@ mkdir -p "$DATA_DIR"
 LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 
 # Check if binaries exist, if not build them
-SEQUENCER_BIN="$REPO_ROOT/target/release/demo-sqlite-sequencer"
-INDEXER_BIN="$REPO_ROOT/target/release/demo-sqlite-indexer"
+SEQUENCER_BIN="$BUILD_DIR/target/release/demo-sqlite-sequencer"
+INDEXER_BIN="$BUILD_DIR/target/release/demo-sqlite-indexer"
 
 if [[ "$SERVICE" == "sequencer" ]]; then
     echo -e "${YELLOW}Building sequencer...${NC}"
-    cd "$REPO_ROOT"
+    cd "$SCRIPT_DIR"
     cargo build --release -p demo-sqlite-sequencer
 fi
 
 if [[ "$SERVICE" == "indexer" ]]; then
     echo -e "${YELLOW}Building indexer...${NC}"
-    cd "$REPO_ROOT"
+    cd "$SCRIPT_DIR"
     cargo build --release -p demo-sqlite-indexer
 fi
 

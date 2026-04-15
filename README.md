@@ -1,7 +1,6 @@
-# Logos SQLite Zone Sequencer and Indexer Demo - TUTORIAL SKELETON
+# Logos SQLite Zone Sequencer and Indexer Demo
 
-This directory contains a skeleton implementation of a Sovereign Zone solution using the Logos Blockchain as a simple database server. It is meant to be used in conjunction with the Zone SDK tutorial in the logos-docs repository.
-
+This directory contains a reference implementation of a Sovereign Zone solution using the Logos Blockchain as a simple database server.
 ## System Architecture
 
 In this demo, the sequencer acts as the primary maintainer of a [Steelsafe password manager](#steelsafe-a-pure-rust-safe-tui-password-manager), with DB updates published to the Logos Blockchain. Other parties, known as indexers, can follow these updates to reconstruct the same database locally as a read-only password manager.
@@ -31,7 +30,22 @@ Each component is a standalone service that can be run independently or via Dock
 * **Rust**: For building the Sequencer and Indexer binaries, if running the helper script.
 * **Logos Node**: To read from and write to the Logos Blockchain.
 
-### 1. Running the Sequencer
+### 1. Configuration
+
+If you want the program to get information from the environment, copy the example environment file and fill in your information before exporting the variables.
+
+```bash
+cp testnet/sqlite-zone-demo/.env.example-local testnet/sqlite-zone-demo/.env-local
+set -a
+source testnet/sqlite-zone-demo/.env-local
+set +a
+```
+
+You can also provide these fields via command line arguments (see below).
+
+In either case, you will need access to a running **Logos Node**, as well as any credentials needed to interact with the node. If you are running a node locally, ensure the `SEQUENCER_NODE_ENDPOINT` and `INDEXER_NODE_ENDPOINT` in your `.env-local` both point to your local node.
+
+### 2. Running the Sequencer
 
 You can run the following file to execute the sequencer directly: `run-local.sh`.
 
@@ -62,9 +76,9 @@ The information in the environment variables can also be provided to the script 
 | `--checkpoint-path ./sequencer.checkpoint` | Path to the checkpoint file for crash recovery. |
 | `--channel-path ./channel.txt` | Path to the channel ID file (for the indexer to read). |
 
-Running this script should allow you to enter SQL queries into the command line.
+Running this script should allow you to interact with the read & write password manager.
 
-### 2. Running the Indexer
+### 3. Running the Indexer
 
 You can run the following file to execute the sequencer directly: `run-local.sh`.
 
