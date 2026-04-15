@@ -1,6 +1,9 @@
-# Logos SQLite Zone Sequencer and Indexer Demo
+# Logos SQLite Zone Sequencer and Indexer Demo - TUTORIAL SKELETON
 
-This directory contains a reference implementation of a Sovereign Zone solution using the Logos Blockchain as a simple database server.
+This directory contains a skeleton implementation of a Sovereign Zone solution using the Logos Blockchain as a simple database server. It is meant to be used together with the Zone SDK tutorial in the [Logos docs](https://github.com/logos-co/logos-docs/) repository.
+
+The complete implementation can be found in the `master` branch of this repository.
+
 ## System Architecture
 
 In this demo, the sequencer acts as the primary maintainer of a [Steelsafe password manager](#steelsafe-a-pure-rust-safe-tui-password-manager), with DB updates published to the Logos Blockchain. Other parties, known as indexers, can follow these updates to reconstruct the same database locally as a read-only password manager.
