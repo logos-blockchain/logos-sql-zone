@@ -13,7 +13,7 @@ use lb_core::mantle::ops::channel::ChannelId;
 use lb_key_management_system_service::keys::{ED25519_SECRET_KEY_SIZE, Ed25519Key};
 use logos_blockchain_zone_sdk::adapter::NodeHttpClient;
 use logos_blockchain_zone_sdk::sequencer::{
-    Error as ZoneSequencerError, SequencerCheckpoint, SequencerHandle, ZoneSequencer,
+    Error as ZoneSequencerError, SequencerHandle, ZoneSequencer, SequencerCheckpoint,
 };
 use nanosql::rusqlite::Error as SqliteError;
 use reqwest::Url;
@@ -41,34 +41,11 @@ pub enum SequencerError {
 
 pub type Result<T> = std::result::Result<T, SequencerError>;
 
-/// The sequencer that handles transactions using the Zone SDK
+/// The sequencer that handles transactions using the Zone SDK.
 pub struct Sequencer {
     handle: SequencerHandle<NodeHttpClient>,
     queue_file: String,
-    checkpoint_path: String,
-}
-
-/// Load signing key from file or generate a new one if it doesn't exist
-fn load_or_create_signing_key(path: &Path) -> Result<Ed25519Key> {
-    if path.exists() {
-        debug!("Loading existing signing key from {:?}", path);
-        let key_bytes = fs::read(path)?;
-        if key_bytes.len() != ED25519_SECRET_KEY_SIZE {
-            return Err(SequencerError::InvalidKeyFile {
-                expected: ED25519_SECRET_KEY_SIZE,
-                actual: key_bytes.len(),
-            });
-        }
-        let key_array: [u8; ED25519_SECRET_KEY_SIZE] =
-            key_bytes.try_into().expect("length already checked");
-        Ok(Ed25519Key::from_bytes(&key_array))
-    } else {
-        debug!("Generating new signing key and saving to {:?}", path);
-        let mut key_bytes = [0u8; ED25519_SECRET_KEY_SIZE];
-        rand::RngCore::fill_bytes(&mut rand::rng(), &mut key_bytes);
-        fs::write(path, key_bytes)?;
-        Ok(Ed25519Key::from_bytes(&key_bytes))
-    }
+    pub checkpoint_path: String,
 }
 
 fn save_checkpoint(path: &Path, checkpoint: &SequencerCheckpoint) {
@@ -84,8 +61,29 @@ fn load_checkpoint(path: &Path) -> Option<SequencerCheckpoint> {
     Some(serde_json::from_slice(&data).expect("failed to deserialize checkpoint"))
 }
 
+/// Load signing key from file or generate a new one if it doesn't exist.
+fn load_or_create_signing_key(path: &Path) -> Ed25519Key {
+    if path.exists() {
+        let key_bytes = fs::read(path).expect("failed to read key file");
+        assert!(
+            key_bytes.len() == ED25519_SECRET_KEY_SIZE,
+            "invalid key file: expected {} bytes, got {}",
+            ED25519_SECRET_KEY_SIZE,
+            key_bytes.len()
+        );
+        let key_array: [u8; ED25519_SECRET_KEY_SIZE] =
+            key_bytes.try_into().expect("length already checked");
+        Ed25519Key::from_bytes(&key_array)
+    } else {
+        let mut key_bytes = [0u8; ED25519_SECRET_KEY_SIZE];
+        rand::RngCore::fill_bytes(&mut rand::rng(), &mut key_bytes);
+        fs::write(path, key_bytes).expect("failed to write key file");
+        Ed25519Key::from_bytes(&key_bytes)
+    }
+}
+
 impl Sequencer {
-    pub fn new(
+    pub async fn new(
         node_endpoint: &str,
         signing_key_path: &str,
         node_auth_username: Option<String>,
@@ -95,8 +93,6 @@ impl Sequencer {
         channel_path: &str,
     ) -> Result<Self> {
         let node_url = Url::parse(node_endpoint).map_err(|e| SequencerError::Url(e.to_string()))?;
-
-        info!("{}", node_url.clone().to_string());
 
         let basic_auth = node_auth_username
             .map(|username| BasicAuthCredentials::new(username, node_auth_password));
@@ -112,14 +108,20 @@ impl Sequencer {
             println!("  Restored checkpoint from {checkpoint_path}");
         }
 
-        let signing_key = load_or_create_signing_key(Path::new(signing_key_path))?;
+        let signing_key = load_or_create_signing_key(Path::new(signing_key_path));
         let channel_id = ChannelId::from(signing_key.public_key().to_bytes());
         fs::write(channel_path, hex::encode(channel_id.as_ref()))
             .expect("failed to write channel id");
 
         let node = NodeHttpClient::new(CommonHttpClient::new(basic_auth), node_url);
-        let (zone_sequencer, handle) = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+        let (zone_sequencer, mut handle) =
+            ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+
         zone_sequencer.spawn();
+
+        println!("Connecting to node...");
+        handle.wait_ready().await;
+        println!("Sequencer ready.");
 
         Ok(Self {
             handle,
@@ -128,7 +130,7 @@ impl Sequencer {
         })
     }
 
-    /// Drain the queue file and return all pending queries
+    /// Drain the queue file and return all pending SQL statements.
     fn queue_drain(&self) -> Result<Vec<String>> {
         let file = OpenOptions::new()
             .read(true)
@@ -148,7 +150,7 @@ impl Sequencer {
         Ok(queue_vec)
     }
 
-    /// Process all pending queries as a single inscription
+    /// Bundle all pending SQL statements into one inscription and publish it.
     async fn process_pending_batch(&self) -> Result<()> {
         let pending = self.queue_drain()?;
         if pending.is_empty() {
@@ -158,20 +160,22 @@ impl Sequencer {
         let count = pending.len();
         debug!("Processing batch of {} queries", count);
 
-        let data = pending.join("\n").into_bytes();
-        let result = self.handle.publish_message(data).await?;
-
-        info!(
-            "Inscription published with tx_hash: {:?}",
-            result.inscription_id
-        );
-
-        save_checkpoint(Path::new(&self.checkpoint_path), &result.checkpoint);
+        let sql_text = pending.join("\n").as_bytes().to_vec();
+        
+        match self.handle.publish_message(sql_text).await {
+            Ok(result) => {
+                info!("Submitted batch of {} statement(s)", count);
+                save_checkpoint(Path::new(&self.checkpoint_path), &result.checkpoint);
+            }
+            Err(e) => {
+                println!("  error: {e}");
+            }
+        }
 
         Ok(())
     }
 
-    /// Check if the queue file is empty
+    /// Check if the queue file is empty.
     pub fn queue_is_empty(&self) -> Result<bool> {
         match fs::metadata(self.queue_file.clone()) {
             Ok(meta) => Ok(meta.len() == 0),
@@ -180,7 +184,7 @@ impl Sequencer {
         }
     }
 
-    /// Background processing loop - call this in a spawned task
+    /// Background processing loop — call this in a spawned task.
     pub async fn run_processing_loop(&self) {
         let poll_interval = Duration::from_millis(100);
 

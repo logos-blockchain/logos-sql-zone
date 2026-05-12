@@ -7,8 +7,6 @@ pub use demo_sqlite_common::{config, crypto, error, screen};
 
 mod tui;
 
-use std::sync::Arc;
-
 use clap::Parser;
 use demo_sqlite_common::logging::RawModeWriter;
 use sequencer::Sequencer;
@@ -90,7 +88,6 @@ impl App {
     }
 }
 
-#[expect(clippy::unused_async)]
 pub async fn run(args: SequencerArgs) -> Result<()> {
     tracing_subscriber::registry()
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
@@ -110,8 +107,8 @@ pub async fn run(args: SequencerArgs) -> Result<()> {
         &args.queue_file,
         &args.checkpoint_path,
         &args.channel_path,
-    ) {
-        Ok(s) => Arc::new(s),
+    ).await {
+        Ok(s) => s,
         Err(e) => {
             error!("Sequencer initialization failed: {e}");
             std::process::exit(1);
@@ -119,9 +116,8 @@ pub async fn run(args: SequencerArgs) -> Result<()> {
     };
     info!("Sequencer ready");
 
-    let sequencer_clone = Arc::clone(&sequencer);
     tokio::spawn(async move {
-        sequencer_clone.run_processing_loop().await;
+        sequencer.run_processing_loop().await;
     });
     info!("Background processor started");
 

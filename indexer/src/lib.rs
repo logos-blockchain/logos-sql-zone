@@ -95,12 +95,9 @@ pub async fn run(args: IndexerArgs) -> Result<()> {
     };
     info!("Indexer ready");
 
+    let handle = tokio::runtime::Handle::current();
     std::thread::spawn(move || {
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .expect("failed to build tokio runtime for indexer");
-        rt.block_on(indexer.run());
+        handle.block_on(indexer.run());
     });
     info!("Background indexer started");
 

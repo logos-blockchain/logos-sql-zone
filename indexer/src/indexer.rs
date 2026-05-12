@@ -59,7 +59,7 @@ impl Indexer {
         Ok(Self { zone_indexer, db_path: db_path.to_owned() })
     }
 
-    pub async fn run(&self) {
+    pub async fn run(self) {
         let db = match DatabaseReadOnly::open(&self.db_path) {
             Ok(db) => db,
             Err(e) => {
@@ -82,10 +82,11 @@ impl Indexer {
 
             futures::pin_mut!(stream);
             while let Some(zone_msg) = stream.next().await {
-                let logos_blockchain_zone_sdk::ZoneMessage::Block(zone_block) = zone_msg else {
-                    continue;
+                let data = match zone_msg {
+                    logos_blockchain_zone_sdk::ZoneMessage::Block(block) => block.data,
+                    logos_blockchain_zone_sdk::ZoneMessage::Deposit(_) => continue,
                 };
-                let sql_text = match String::from_utf8(zone_block.data) {
+                let sql_text = match String::from_utf8(data) {
                     Ok(s) => s,
                     Err(e) => {
                         error!("Zone block data is not valid UTF-8: {e}");
@@ -95,8 +96,8 @@ impl Indexer {
 
                 let statements: Vec<&str> = sql_text
                     .lines()
-                    .map(|l| l.trim().trim_end_matches(';').trim())
-                    .filter(|s| !s.is_empty())
+                    .map(|l: &str| l.trim().trim_end_matches(';').trim())
+                    .filter(|s: &&str| !s.is_empty())
                     .collect();
 
                 if statements.is_empty() {

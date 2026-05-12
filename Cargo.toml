@@ -76,6 +76,14 @@ lb-wallet-http-client              = { default-features = false, package = "logo
 lb-wallet-service                  = { default-features = false, package = "logos-blockchain-wallet-service", path = "./logos-blockchain/services/wallet" }
 lb-witness-generator               = { default-features = false, package = "logos-blockchain-witness-generator", path = "./logos-blockchain/zk/circuits/witness-generator" }
 lb-zksign                          = { default-features = false, package = "logos-blockchain-zksign", path = "./logos-blockchain/zk/proofs/zksign" }
+lb-log-targets                     = { default-features = false, package = "logos-blockchain-log-targets", path = "./logos-blockchain/tracing/targets" }
+lb-log-targets-macros              = { default-features = false, package = "logos-blockchain-log-targets-macros", path = "./logos-blockchain/tracing/targets/macros" }
+const-str                          = { default-features = false, version = "0.4.3" }
+nutype                             = { default-features = false, version = "0.6.2" }
+proc-macro2                        = { default-features = false, version = "1" }
+quote                              = { default-features = false, version = "1" }
+syn                                = { features = ["full"], version = "2" }
+tonic                              = { default-features = false, version = "0.14.5" }
 lb-zone-sdk                        = { default-features = false, package = "logos-blockchain-zone-sdk", path = "./logos-blockchain/zone-sdk" }
 lb_network                         = { default-features = false, package = "logos-blockchain-network-service", path = "./logos-blockchain/services/network" }
 testing-framework-core             = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
