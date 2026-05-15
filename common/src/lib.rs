@@ -4,4 +4,6 @@ pub mod config;
 pub mod crypto;
 pub mod error;
 pub mod logging;
+pub mod message;
 pub mod screen;
+pub mod state;

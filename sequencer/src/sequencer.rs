@@ -7,45 +7,35 @@ use std::{
     time::Duration,
 };
 
+use demo_sqlite_common::state::{InMemoryZoneState, ZoneState as _};
 use fs2::FileExt as _;
 use lb_common_http_client::{BasicAuthCredentials, CommonHttpClient};
 use lb_core::mantle::ops::channel::ChannelId;
 use lb_key_management_system_service::keys::{ED25519_SECRET_KEY_SIZE, Ed25519Key};
-use logos_blockchain_zone_sdk::adapter::NodeHttpClient;
-use logos_blockchain_zone_sdk::sequencer::{
-    Error as ZoneSequencerError, SequencerHandle, ZoneSequencer, SequencerCheckpoint,
+use logos_blockchain_zone_sdk::{
+    adapter::NodeHttpClient,
+    sequencer::{Event, SequencerCheckpoint, SequencerHandle, ZoneSequencer},
 };
-use nanosql::rusqlite::Error as SqliteError;
 use reqwest::Url;
 use thiserror::Error;
-use tokio::time::sleep;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 
 #[derive(Debug, Error)]
 pub enum SequencerError {
-    #[error("Zone sequencer error: {0}")]
-    ZoneSequencer(#[from] ZoneSequencerError),
     #[error("URL parse error: {0}")]
     Url(String),
     #[error("IO error: {0}")]
     Io(#[from] io::Error),
-    #[error("SQLite error: {0}")]
-    Sqlite(#[from] SqliteError),
-    #[error("Invalid key file: expected {expected} bytes, got {actual}")]
-    InvalidKeyFile { expected: usize, actual: usize },
-    #[error("{0}")]
-    InvalidChannelId(String),
-    #[error("Timeout: {0}")]
-    Timeout(String),
 }
 
 pub type Result<T> = std::result::Result<T, SequencerError>;
 
-/// The sequencer that handles transactions using the Zone SDK.
 pub struct Sequencer {
+    sequencer: ZoneSequencer<NodeHttpClient>,
     handle: SequencerHandle<NodeHttpClient>,
+    state: InMemoryZoneState,
     queue_file: String,
-    pub checkpoint_path: String,
+    checkpoint_path: String,
 }
 
 fn save_checkpoint(path: &Path, checkpoint: &SequencerCheckpoint) {
@@ -61,7 +51,6 @@ fn load_checkpoint(path: &Path) -> Option<SequencerCheckpoint> {
     Some(serde_json::from_slice(&data).expect("failed to deserialize checkpoint"))
 }
 
-/// Load signing key from file or generate a new one if it doesn't exist.
 fn load_or_create_signing_key(path: &Path) -> Ed25519Key {
     if path.exists() {
         let key_bytes = fs::read(path).expect("failed to read key file");
@@ -103,7 +92,7 @@ impl Sequencer {
             }
         }
 
-        let checkpoint = load_checkpoint(Path::new(&checkpoint_path));
+        let checkpoint = load_checkpoint(Path::new(checkpoint_path));
         if checkpoint.is_some() {
             println!("  Restored checkpoint from {checkpoint_path}");
         }
@@ -114,98 +103,112 @@ impl Sequencer {
             .expect("failed to write channel id");
 
         let node = NodeHttpClient::new(CommonHttpClient::new(basic_auth), node_url);
-        let (zone_sequencer, mut handle) =
-            ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
-
-        zone_sequencer.spawn();
-
-        println!("Connecting to node...");
-        handle.wait_ready().await;
-        println!("Sequencer ready.");
+        let (sequencer, handle) = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
 
         Ok(Self {
+            sequencer,
             handle,
+            state: InMemoryZoneState::default(),
             queue_file: queue_file.to_owned(),
             checkpoint_path: checkpoint_path.to_owned(),
         })
     }
 
-    /// Drain the queue file and return all pending SQL statements.
-    fn queue_drain(&self) -> Result<Vec<String>> {
-        let file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(self.queue_file.clone())?;
+    pub async fn run(self) {
+        let Self { mut sequencer, handle, mut state, queue_file, checkpoint_path } = self;
 
-        file.lock_exclusive()?;
-
-        let reader = BufReader::new(&file);
-        let mut queue_vec = Vec::new();
-        for query in reader.lines() {
-            queue_vec.push(query?.clone());
-        }
-
-        file.set_len(0)?;
-
-        Ok(queue_vec)
-    }
-
-    /// Bundle all pending SQL statements into one inscription and publish it.
-    async fn process_pending_batch(&self) -> Result<()> {
-        let pending = self.queue_drain()?;
-        if pending.is_empty() {
-            return Ok(());
-        }
-
-        let count = pending.len();
-        debug!("Processing batch of {} queries", count);
-
-        let sql_text = pending.join("\n").as_bytes().to_vec();
-        
-        match self.handle.publish_message(sql_text).await {
-            Ok(result) => {
-                info!("Submitted batch of {} statement(s)", count);
-                save_checkpoint(Path::new(&self.checkpoint_path), &result.checkpoint);
+        let mut batch_handle = handle.clone();
+        tokio::spawn(async move {
+            batch_handle.wait_ready().await;
+            let mut interval = tokio::time::interval(Duration::from_millis(100));
+            loop {
+                interval.tick().await;
+                if let Err(e) = process_pending_batch(&queue_file, &batch_handle).await {
+                    error!("Batch processing failed: {e}");
+                }
             }
-            Err(e) => {
-                println!("  error: {e}");
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Check if the queue file is empty.
-    pub fn queue_is_empty(&self) -> Result<bool> {
-        match fs::metadata(self.queue_file.clone()) {
-            Ok(meta) => Ok(meta.len() == 0),
-            Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(true),
-            Err(e) => Err(e.into()),
-        }
-    }
-
-    /// Background processing loop — call this in a spawned task.
-    pub async fn run_processing_loop(&self) {
-        let poll_interval = Duration::from_millis(100);
+        });
 
         loop {
-            let is_empty = match self.queue_is_empty() {
-                Ok(empty) => empty,
-                Err(e) => {
-                    tracing::error!("Failed to check queue: {}", e);
-                    sleep(poll_interval).await;
-                    continue;
-                }
-            };
-
-            if is_empty {
-                sleep(poll_interval).await;
-                continue;
-            }
-
-            if let Err(e) = self.process_pending_batch().await {
-                tracing::error!("Batch processing failed: {}", e);
-            }
+            let Some(event) = sequencer.next_event().await else { break; };
+            handle_event(event, &handle, &mut state, &checkpoint_path).await;
         }
     }
+}
+
+async fn handle_event(
+    event: Event,
+    handle: &SequencerHandle<NodeHttpClient>,
+    state: &mut InMemoryZoneState,
+    checkpoint_path: &str,
+) {
+    match event {
+        Event::Ready => {
+            info!("Sequencer ready");
+        }
+        Event::ChannelUpdate { orphaned, adopted } => {
+            state.on_adopted(&adopted);
+            for info in &orphaned {
+                state.on_orphaned(&info.this_msg);
+                debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Auto-republishing orphan");
+                if let Err(e) = handle.publish_message(info.payload.clone()).await {
+                    error!("failed to auto-republish: {e}");
+                }
+            }
+        }
+        Event::TxsFinalized { inscriptions, .. } => {
+            state.on_finalized(&inscriptions);
+        }
+        Event::Published { info, checkpoint } => {
+            debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Published");
+            state.on_published(&info);
+            save_checkpoint(Path::new(checkpoint_path), &checkpoint);
+            state.save_checkpoint(checkpoint);
+        }
+        Event::FinalizedInscriptions { inscriptions } => {
+            state.on_finalized(&inscriptions);
+        }
+    }
+}
+
+async fn process_pending_batch(
+    queue_file: &str,
+    handle: &SequencerHandle<NodeHttpClient>,
+) -> Result<()> {
+    let pending = queue_drain(queue_file)?;
+    if pending.is_empty() {
+        return Ok(());
+    }
+
+    let count = pending.len();
+    debug!("Processing batch of {} queries", count);
+
+    let sql_text = pending.join("\n").as_bytes().to_vec();
+    if let Err(e) = handle.publish_message(sql_text).await {
+        error!("failed to publish batch: {e}");
+    } else {
+        info!("Submitted batch of {} statement(s)", count);
+    }
+
+    Ok(())
+}
+
+fn queue_drain(queue_file: &str) -> Result<Vec<String>> {
+    let file = match OpenOptions::new().read(true).write(true).open(queue_file) {
+        Ok(f) => f,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(e) => return Err(SequencerError::Io(e)),
+    };
+
+    file.lock_exclusive()?;
+
+    let reader = BufReader::new(&file);
+    let mut queue_vec = Vec::new();
+    for query in reader.lines() {
+        queue_vec.push(query?);
+    }
+
+    file.set_len(0)?;
+
+    Ok(queue_vec)
 }

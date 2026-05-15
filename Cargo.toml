@@ -85,6 +85,10 @@ quote                              = { default-features = false, version = "1" }
 syn                                = { features = ["full"], version = "2" }
 tonic                              = { default-features = false, version = "0.14.5" }
 lb-zone-sdk                        = { default-features = false, package = "logos-blockchain-zone-sdk", path = "./logos-blockchain/zone-sdk" }
+lb-config                          = { default-features = false, package = "logos-blockchain-config", path = "./logos-blockchain/tools/config" }
+lb-tools                           = { default-features = false, package = "logos-blockchain-tools", path = "./logos-blockchain/tools/blockchain-tools" }
+lb-tui-zone                        = { default-features = false, package = "logos-blockchain-tui-zone", path = "./logos-blockchain/testnet/tui-zone" }
+lbp-error                          = { default-features = false, package = "logos-blockchain-proofs-error", path = "./logos-blockchain/zk/proofs/error" }
 lb_network                         = { default-features = false, package = "logos-blockchain-network-service", path = "./logos-blockchain/services/network" }
 testing-framework-core             = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
 testing-framework-runner-compose   = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
@@ -109,7 +113,90 @@ libp2p-stream     = { default-features = false, version = "0.3.0-alpha" }
 log               = { default-features = false, version = "0.4" }
 overwatch         = { default-features = false, git = "https://github.com/logos-co/Overwatch", rev = "448c192" }
 overwatch-derive  = { default-features = false, git = "https://github.com/logos-co/Overwatch", rev = "448c192" }
+anyhow                             = { default-features = false, version = "1" }
+ark-bn254                          = { default-features = false, version = "0.4" }
+ark-ec                             = { default-features = false, version = "0.4" }
+ark-ff                             = { default-features = false, version = "0.4" }
+ark-groth16                        = { default-features = false, version = "0.4" }
+ark-serialize                      = { default-features = false, version = "0.4.2" }
+astro-float                        = { default-features = false, version = "0.9" }
+async-ctrlc                        = { default-features = false, version = "1.2" }
+async-stream                       = { default-features = false, version = "0.3.6" }
+axum                               = { default-features = false, version = "0.7.5" }
+backon                             = { default-features = false, version = "1.3.0" }
+bincode                            = { default-features = false, version = "1.3" }
+chrono                             = { default-features = false, version = "0.4" }
+cipher                             = { default-features = false, version = "0.4" }
+clap                               = { default-features = false, version = "4" }
+color-eyre                         = { default-features = false, version = "0.6.0" }
+console-subscriber                 = { default-features = false, version = "0.4" }
+const-hex                          = { default-features = false, version = "1" }
+cucumber                           = { default-features = false, version = "=0.22.0" }
+derivative                         = { default-features = false, version = "2" }
+dhat                               = { default-features = false, version = "0.3.3" }
+dirs                               = { default-features = false, version = "6.0" }
+ed25519                            = { default-features = false, version = "2.2.3" }
+either                             = { default-features = false, version = "1.15.0" }
+flate2                             = { default-features = false, version = "1.1.9" }
+futures-timer                      = { default-features = false, version = "3.0.3" }
+generic-array                      = { default-features = false, version = "1.2" }
+hasher                             = { default-features = false, version = "0.1.4" }
+http                               = { default-features = false, version = "1.3" }
+humantime                          = { default-features = false, version = "2.1" }
+hyper                              = { default-features = false, version = "1.0" }
+igd-next                           = { default-features = false, version = "0.16.1" }
+itertools                          = { default-features = false, version = "0.14" }
+jf-poseidon2                       = { default-features = false, git = "https://github.com/EspressoSystems/jellyfish.git", rev = "dc166cf0f803c3e5067f9dfcc21e3dade986a447" }
+libp2p-swarm-test                  = { default-features = false, version = "0.5" }
+multiaddr                          = { default-features = false, version = "0.18" }
+natpmp                             = { default-features = false, version = "0.5" }
+netdev                             = { default-features = false, version = "0.31" }
+nistrs                             = { default-features = false, version = "0.1.2" }
+nom                                = { default-features = false, version = "8" }
+num_enum                           = { default-features = false, version = "0.7.4" }
+num-bigint                         = { default-features = false, version = "0.4" }
+num-traits                         = { default-features = false, version = "0.2.19" }
+opentelemetry                      = { default-features = false, version = "0.31" }
+opentelemetry-appender-tracing     = { default-features = false, version = "0.31" }
+opentelemetry-http                 = { default-features = false, version = "0.31" }
+opentelemetry-otlp                 = { default-features = false, version = "0.31" }
+opentelemetry_sdk                  = { default-features = false, version = "0.31" }
+opentelemetry-semantic-conventions = { default-features = false, version = "0.31" }
+owo-colors                         = { default-features = false, version = "4.2.3" }
+pprof                              = { default-features = false, version = "0.15" }
+proptest                           = { default-features = false, version = "1.0" }
+proptest-macro                     = { default-features = false, version = "0.2" }
+quickcheck                         = { default-features = false, version = "1.0" }
+quickcheck_macros                  = { default-features = false, version = "1.0" }
+rand_chacha                        = { default-features = false, version = "0.3" }
+rand_core                          = { default-features = false, version = "0.6.4" }
 rand              = { default-features = false, version = "0.8" }
+redb                               = { default-features = false, version = "2.2" }
+rocksdb                            = { default-features = false, version = "0.24" }
+rpds              = { default-features = false, version = "1" }
+rs-merkle-tree                     = { default-features = false, version = "0.1" }
+serde_arrays                       = { default-features = false, version = "0.2.0" }
+serde_path_to_error                = { default-features = false, version = "0.1" }
+serde_yml                          = { default-features = false, version = "0.0.12" }
+serial_test                        = { default-features = false, version = "3.1.1" }
+sntpc                              = { default-features = false, version = "0.5" }
+strum                              = { default-features = false, version = "0.27" }
+strum_macros                       = { default-features = false, version = "0.27.2" }
+sysinfo                            = { default-features = false, version = "0.37" }
+test-log                           = { default-features = false, version = "0.2" }
+tikv-jemallocator                  = { default-features = false, version = "0.6" }
+tokio-util                         = { default-features = false, version = "0.7" }
+tower                              = { default-features = false, version = "0.4" }
+tower-http                         = { default-features = false, version = "0.6.8" }
+tracing-appender                   = { default-features = false, version = "0.2" }
+tracing-futures                    = { default-features = false, version = "0.2" }
+tracing-gelf                       = { default-features = false, version = "0.7" }
+tracing-loki                       = { default-features = false, version = "0.2.5" }
+tracing-opentelemetry              = { default-features = false, version = "0.32.1" }
+tracing-subscriber                 = { default-features = false, version = "0.3" }
+url                                = { default-features = false, version = "2" }
+validator                          = { default-features = false, version = "0.20.0" }
+zerocopy                           = { default-features = false, version = "0.8.26" }
 reqwest           = { default-features = false, version = "0.12" }
 serde             = { default-features = false, version = "1.0" }
 serde-big-array   = { default-features = false, version = "0.5" }
