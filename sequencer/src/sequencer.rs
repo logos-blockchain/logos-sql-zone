@@ -119,10 +119,10 @@ impl Sequencer {
 
         let mut batch_handle = handle.clone();
         tokio::spawn(async move {
-            batch_handle.wait_ready().await;
             let mut interval = tokio::time::interval(Duration::from_millis(100));
             loop {
                 interval.tick().await;
+                batch_handle.wait_ready().await;
                 if let Err(e) = process_pending_batch(&queue_file, &batch_handle).await {
                     error!("Batch processing failed: {e}");
                 }
@@ -130,7 +130,7 @@ impl Sequencer {
         });
 
         loop {
-            let Some(event) = sequencer.next_event().await else { break; };
+            let Some(event) = sequencer.next_event().await else { continue; };
             handle_event(event, &handle, &mut state, &checkpoint_path).await;
         }
     }
