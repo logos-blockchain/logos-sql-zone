@@ -114,10 +114,8 @@ pub async fn run(args: SequencerArgs) -> Result<()> {
             std::process::exit(1);
         }
     };
-    info!("Sequencer ready");
-
     tokio::spawn(async move {
-        sequencer.run_processing_loop().await;
+        sequencer.run().await;
     });
     info!("Background processor started");
 
