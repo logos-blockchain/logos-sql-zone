@@ -1,5 +1,5 @@
 use lb_core::mantle::ops::channel::MsgId;
-use lb_zone_sdk::{sequencer::SequencerCheckpoint, state::InscriptionInfo};
+use lb_zone_sdk::state::InscriptionInfo;
 
 use crate::message::Msg;
 
@@ -31,9 +31,6 @@ pub trait ZoneState: Send {
     fn published(&self) -> &[Msg];
     fn adopted(&self) -> &[Msg];
     fn finalized(&self) -> &[Msg];
-
-    fn save_checkpoint(&mut self, checkpoint: SequencerCheckpoint);
-    fn load_checkpoint(&self) -> Option<&SequencerCheckpoint>;
 }
 
 /// In-memory implementation of [`ZoneState`].
@@ -42,7 +39,6 @@ pub struct InMemoryZoneState {
     published: Vec<Msg>,
     adopted: Vec<Msg>,
     finalized: Vec<Msg>,
-    checkpoint: Option<SequencerCheckpoint>,
 }
 
 impl ZoneState for InMemoryZoneState {
@@ -94,13 +90,5 @@ impl ZoneState for InMemoryZoneState {
 
     fn finalized(&self) -> &[Msg] {
         &self.finalized
-    }
-
-    fn save_checkpoint(&mut self, checkpoint: SequencerCheckpoint) {
-        self.checkpoint = Some(checkpoint);
-    }
-
-    fn load_checkpoint(&self) -> Option<&SequencerCheckpoint> {
-        self.checkpoint.as_ref()
     }
 }

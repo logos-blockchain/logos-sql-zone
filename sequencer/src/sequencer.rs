@@ -163,7 +163,6 @@ async fn handle_event(
             debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Published");
             state.on_published(&info);
             save_checkpoint(Path::new(checkpoint_path), &checkpoint);
-            state.save_checkpoint(checkpoint);
         }
         Event::FinalizedInscriptions { inscriptions } => {
             state.on_finalized(&inscriptions);
