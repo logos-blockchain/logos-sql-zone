@@ -1,5 +1,5 @@
 use lb_core::mantle::ops::channel::MsgId;
-use lb_zone_sdk::state::InscriptionInfo;
+use lb_zone_sdk::sequencer::InscriptionInfo;
 
 use crate::message::Msg;
 

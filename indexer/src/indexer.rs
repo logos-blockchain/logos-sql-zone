@@ -85,7 +85,7 @@ impl Indexer {
                 let logos_blockchain_zone_sdk::ZoneMessage::Block(zone_block) = zone_msg else {
                     continue;
                 };
-                let sql_text = match String::from_utf8(zone_block.data) {
+                let sql_text = match String::from_utf8(Vec::from(zone_block.data)) {
                     Ok(s) => s,
                     Err(e) => {
                         error!("Zone block data is not valid UTF-8: {e}");

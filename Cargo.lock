@@ -115,7 +115,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -126,7 +126,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -197,59 +197,46 @@ dependencies = [
 
 [[package]]
 name = "ark-bn254"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a22f4561524cd949590d78d7d4c5df8f592430d221f7f3c9497bbafd8972120f"
-dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
-]
-
-[[package]]
-name = "ark-bn254"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d69eab57e8d2663efa5c63135b2af4f396d66424f88954c21104125ab6b3e6bc"
 dependencies = [
- "ark-ec 0.5.0",
- "ark-ff 0.5.0",
- "ark-std 0.5.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-std",
 ]
 
 [[package]]
 name = "ark-crypto-primitives"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f3a13b34da09176a8baba701233fdffbaa7c1b1192ce031a3da4e55ce1f1a56"
+checksum = "1e0c292754729c8a190e50414fd1a37093c786c709899f29c9f7daccecfa855e"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
+ "ahash",
+ "ark-crypto-primitives-macros",
+ "ark-ec",
+ "ark-ff",
  "ark-relations",
- "ark-serialize 0.4.2",
+ "ark-serialize",
  "ark-snark",
- "ark-std 0.4.0",
+ "ark-std",
  "blake2",
  "derivative",
  "digest",
+ "fnv",
+ "merlin",
  "sha2",
 ]
 
 [[package]]
-name = "ark-ec"
-version = "0.4.2"
+name = "ark-crypto-primitives-macros"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "defd9a439d56ac24968cca0571f598a61bc8c55f71d50a89cda591cb750670ba"
+checksum = "e7e89fe77d1f0f4fe5b96dfc940923d88d17b6a773808124f21e764dfb063c6a"
 dependencies = [
- "ark-ff 0.4.2",
- "ark-poly 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "derivative",
- "hashbrown 0.13.2",
- "itertools 0.10.5",
- "num-traits",
- "zeroize",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -259,10 +246,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43d68f2d516162846c1238e755a7c4d131b892b70cc70c471a8e3ca3ed818fce"
 dependencies = [
  "ahash",
- "ark-ff 0.5.0",
- "ark-poly 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ff",
+ "ark-poly",
+ "ark-serialize",
+ "ark-std",
  "educe",
  "fnv",
  "hashbrown 0.15.5",
@@ -275,34 +262,14 @@ dependencies = [
 
 [[package]]
 name = "ark-ff"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec847af850f44ad29048935519032c33da8aa03340876d351dfab5660d2966ba"
-dependencies = [
- "ark-ff-asm 0.4.2",
- "ark-ff-macros 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "derivative",
- "digest",
- "itertools 0.10.5",
- "num-bigint",
- "num-traits",
- "paste",
- "rustc_version",
- "zeroize",
-]
-
-[[package]]
-name = "ark-ff"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a177aba0ed1e0fbb62aa9f6d0502e9b46dad8c2eab04c14258a1212d2557ea70"
 dependencies = [
- "ark-ff-asm 0.5.0",
- "ark-ff-macros 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ff-asm",
+ "ark-ff-macros",
+ "ark-serialize",
+ "ark-std",
  "arrayvec",
  "digest",
  "educe",
@@ -315,35 +282,12 @@ dependencies = [
 
 [[package]]
 name = "ark-ff-asm"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ed4aa4fe255d0bc6d79373f7e31d2ea147bcf486cba1be5ba7ea85abdb92348"
-dependencies = [
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "ark-ff-asm"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62945a2f7e6de02a31fe400aa489f0e0f5b2502e69f95f853adb82a96c7a6b60"
 dependencies = [
  "quote",
  "syn 2.0.117",
-]
-
-[[package]]
-name = "ark-ff-macros"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7abe79b0e4288889c4574159ab790824d0033b9fdcb2a112a3182fac2e514565"
-dependencies = [
- "num-bigint",
- "num-traits",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -361,30 +305,17 @@ dependencies = [
 
 [[package]]
 name = "ark-groth16"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20ceafa83848c3e390f1cbf124bc3193b3e639b3f02009e0e290809a501b95fc"
+checksum = "88f1d0f3a534bb54188b8dcc104307db6c56cdae574ddc3212aec0625740fc7e"
 dependencies = [
  "ark-crypto-primitives",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-poly 0.4.2",
+ "ark-ec",
+ "ark-ff",
+ "ark-poly",
  "ark-relations",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
-]
-
-[[package]]
-name = "ark-poly"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d320bfc44ee185d899ccbadfa8bc31aab923ce1558716e1997a1e74057fe86bf"
-dependencies = [
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "derivative",
- "hashbrown 0.13.2",
+ "ark-serialize",
+ "ark-std",
 ]
 
 [[package]]
@@ -394,9 +325,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "579305839da207f02b89cd1679e50e67b4331e2f9294a57693e5051b7703fe27"
 dependencies = [
  "ahash",
- "ark-ff 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "educe",
  "fnv",
  "hashbrown 0.15.5",
@@ -404,26 +335,14 @@ dependencies = [
 
 [[package]]
 name = "ark-relations"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00796b6efc05a3f48225e59cb6a2cda78881e7c390872d5786aaf112f31fb4f0"
+checksum = "ec46ddc93e7af44bcab5230937635b06fb5744464dd6a7e7b083e80ebd274384"
 dependencies = [
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-ff",
+ "ark-std",
  "tracing",
  "tracing-subscriber 0.2.25",
-]
-
-[[package]]
-name = "ark-serialize"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adb7b85a02b83d2f22f89bd5cac66c9c89474240cb6207cb1efc16d098e822a5"
-dependencies = [
- "ark-serialize-derive 0.4.2",
- "ark-std 0.4.0",
- "digest",
- "num-bigint",
 ]
 
 [[package]]
@@ -432,22 +351,11 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f4d068aaf107ebcd7dfb52bc748f8030e0fc930ac8e360146ca54c1203088f7"
 dependencies = [
- "ark-serialize-derive 0.5.0",
- "ark-std 0.5.0",
+ "ark-serialize-derive",
+ "ark-std",
  "arrayvec",
  "digest",
  "num-bigint",
-]
-
-[[package]]
-name = "ark-serialize-derive"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae3281bc6d0fd7e549af32b52511e1302185bd688fd3359fa36423346ff682ea"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -463,24 +371,14 @@ dependencies = [
 
 [[package]]
 name = "ark-snark"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84d3cc6833a335bb8a600241889ead68ee89a3cf8448081fb7694c0fe503da63"
+checksum = "d368e2848c2d4c129ce7679a7d0d2d612b6a274d3ea6a13bad4445d61b381b88"
 dependencies = [
- "ark-ff 0.4.2",
+ "ark-ff",
  "ark-relations",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
-]
-
-[[package]]
-name = "ark-std"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94893f1e0c6eeab764ade8dc4c0db24caf4fe7cbbaafc0eba0a9030f447b5185"
-dependencies = [
- "num-traits",
- "rand 0.8.5",
+ "ark-serialize",
+ "ark-std",
 ]
 
 [[package]]
@@ -1009,6 +907,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "chkstk_stub"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "047f6ab2f3b9bcaf23b593d1580898e4244d27eadf1a1fae99212ee5735d3d1c"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1485,7 +1392,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ab67060fc6b8ef687992d439ca0fa36e7ed17e9a0b16b25b601e8757df720de"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -1731,7 +1638,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1939,7 +1846,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2019,6 +1926,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "fd-lock"
+version = "4.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce92ff622d6dadf7349484f42c93271a0d49b7cc4d466a936405bacbe10aa78"
+dependencies = [
+ "cfg-if",
+ "rustix 1.1.4",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "fdeflate"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2042,6 +1960,16 @@ name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
+
+[[package]]
+name = "filetime"
+version = "0.2.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c287a33c7f0a620c38e641e7f60827713987b3c0f26e8ddc9462cc69cf75759"
+dependencies = [
+ "cfg-if",
+ "libc",
+]
 
 [[package]]
 name = "find-msvc-tools"
@@ -2351,15 +2279,6 @@ dependencies = [
  "cfg-if",
  "crunchy",
  "zerocopy",
-]
-
-[[package]]
-name = "hashbrown"
-version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43a3c133739dddd0d2990f9a4bdf8eb4b21ef50e4851ca85ab661199821d510e"
-dependencies = [
- "ahash",
 ]
 
 [[package]]
@@ -2996,7 +2915,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi",
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3040,26 +2959,26 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "jf-crhf"
-version = "0.1.1"
-source = "git+https://github.com/EspressoSystems/jellyfish?tag=jf-crhf-v0.1.1#8f3dce0bc2bd161b4648f6ac029dcc1a23aaf4c5"
+version = "0.2.0"
+source = "git+https://github.com/EspressoSystems/jellyfish?tag=jf-crhf-v0.2.0#f1538793f7f0e391495cb17bbb0c8703ec5f689d"
 dependencies = [
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-serialize",
+ "ark-std",
 ]
 
 [[package]]
 name = "jf-poseidon2"
-version = "0.1.0"
-source = "git+https://github.com/EspressoSystems/jellyfish.git?rev=dc166cf0f803c3e5067f9dfcc21e3dade986a447#dc166cf0f803c3e5067f9dfcc21e3dade986a447"
+version = "0.2.0"
+source = "git+https://github.com/EspressoSystems/jellyfish.git?rev=8d80230358e900f8d63765a937f63f4978ca1daa#8d80230358e900f8d63765a937f63f4978ca1daa"
 dependencies = [
- "ark-bn254 0.4.0",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-bn254",
+ "ark-ff",
+ "ark-std",
  "displaydoc",
  "hex",
  "jf-crhf",
  "lazy_static",
- "nimue",
+ "spongefish",
  "zeroize",
 ]
 
@@ -3638,8 +3557,8 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47a1ccadd0bb5a32c196da536fd72c59183de24a055f6bf0513bf845fefab862"
 dependencies = [
- "ark-bn254 0.5.0",
- "ark-ff 0.5.0",
+ "ark-bn254",
+ "ark-ff",
  "num-bigint",
  "thiserror 1.0.69",
 ]
@@ -3702,12 +3621,12 @@ dependencies = [
  "logos-blockchain-blend-crypto",
  "logos-blockchain-blend-proofs",
  "logos-blockchain-core",
+ "logos-blockchain-cryptarchia-engine",
  "logos-blockchain-groth16",
  "logos-blockchain-key-management-system-keys",
  "logos-blockchain-log-targets",
  "logos-blockchain-utils",
  "serde",
- "serde-big-array",
  "serde_with",
  "test-log",
  "thiserror 2.0.18",
@@ -3743,12 +3662,10 @@ version = "0.2.1"
 dependencies = [
  "async-trait",
  "derivative",
- "futures",
  "logos-blockchain-core",
  "overwatch",
  "serde",
  "tokio",
- "tokio-stream",
  "tracing",
 ]
 
@@ -3778,7 +3695,6 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "serde_with",
- "strum 0.27.2",
  "tempfile",
  "thiserror 2.0.18",
  "time",
@@ -3789,18 +3705,79 @@ dependencies = [
 ]
 
 [[package]]
-name = "logos-blockchain-circuits-prover"
-version = "0.2.1"
+name = "logos-blockchain-circuits-build"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
 dependencies = [
- "logos-blockchain-circuits-utils",
- "tempfile",
+ "dirs",
+ "fd-lock",
+ "flate2",
+ "tar",
+ "ureq",
 ]
 
 [[package]]
-name = "logos-blockchain-circuits-utils"
+name = "logos-blockchain-circuits-common"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "logos-blockchain-circuits-types",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-poc-sys"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "logos-blockchain-circuits-build",
+ "logos-blockchain-circuits-common",
+ "logos-blockchain-circuits-types",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-pol-sys"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "logos-blockchain-circuits-build",
+ "logos-blockchain-circuits-common",
+ "logos-blockchain-circuits-types",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-poq-sys"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "logos-blockchain-circuits-build",
+ "logos-blockchain-circuits-common",
+ "logos-blockchain-circuits-types",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-prover"
 version = "0.2.1"
 dependencies = [
- "dirs",
+ "rust-rapidsnark",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-signature-sys"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "logos-blockchain-circuits-build",
+ "logos-blockchain-circuits-common",
+ "logos-blockchain-circuits-types",
+]
+
+[[package]]
+name = "logos-blockchain-circuits-types"
+version = "0.5.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-circuits.git?tag=v0.5.3#127626881faa975aa8e9868422cf6bbb08fcb512"
+dependencies = [
+ "bytes",
+ "libc",
 ]
 
 [[package]]
@@ -3816,6 +3793,7 @@ dependencies = [
  "logos-blockchain-groth16",
  "logos-blockchain-http-api-common",
  "logos-blockchain-key-management-system-keys",
+ "logos-blockchain-log-targets",
  "reqwest",
  "serde",
  "serde_json",
@@ -3828,7 +3806,7 @@ dependencies = [
 name = "logos-blockchain-core"
 version = "0.2.1"
 dependencies = [
- "ark-ff 0.4.2",
+ "ark-ff",
  "bincode",
  "blake2",
  "bytes",
@@ -3841,6 +3819,7 @@ dependencies = [
  "logos-blockchain-cryptarchia-engine",
  "logos-blockchain-groth16",
  "logos-blockchain-key-management-system-keys",
+ "logos-blockchain-log-targets",
  "logos-blockchain-mmr",
  "logos-blockchain-poc",
  "logos-blockchain-pol",
@@ -3867,6 +3846,7 @@ version = "0.2.1"
 dependencies = [
  "logos-blockchain-pol",
  "logos-blockchain-utils",
+ "rpds",
  "serde",
  "serde_with",
  "thiserror 2.0.18",
@@ -3898,11 +3878,11 @@ dependencies = [
 name = "logos-blockchain-groth16"
 version = "0.2.1"
 dependencies = [
- "ark-bn254 0.4.0",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
+ "ark-bn254",
+ "ark-ec",
+ "ark-ff",
  "ark-groth16",
- "ark-serialize 0.4.2",
+ "ark-serialize",
  "bincode",
  "generic-array 1.3.5",
  "hex",
@@ -3919,13 +3899,19 @@ dependencies = [
  "axum",
  "logos-blockchain-core",
  "logos-blockchain-key-management-system-keys",
+ "logos-blockchain-log-targets",
  "logos-blockchain-tracing",
  "pprof",
  "serde",
  "serde_json",
+ "serde_urlencoded",
  "serde_with",
+ "time",
  "tokio",
  "tracing",
+ "url",
+ "utoipa",
+ "validator",
 ]
 
 [[package]]
@@ -3939,6 +3925,7 @@ dependencies = [
  "hex",
  "logos-blockchain-groth16",
  "logos-blockchain-key-management-system-macros",
+ "logos-blockchain-log-targets",
  "logos-blockchain-poseidon2",
  "logos-blockchain-utils",
  "logos-blockchain-zksign",
@@ -3974,6 +3961,7 @@ dependencies = [
  "logos-blockchain-core",
  "logos-blockchain-groth16",
  "logos-blockchain-key-management-system-keys",
+ "logos-blockchain-log-targets",
  "logos-blockchain-poseidon2",
  "logos-blockchain-utxotree",
  "tokio",
@@ -3986,9 +3974,9 @@ version = "0.2.1"
 dependencies = [
  "async-trait",
  "bytes",
- "log",
  "logos-blockchain-key-management-system-keys",
  "logos-blockchain-key-management-system-operators",
+ "logos-blockchain-log-targets",
  "logos-blockchain-tracing",
  "num-bigint",
  "overwatch",
@@ -4039,6 +4027,7 @@ dependencies = [
  "libp2p",
  "libp2p-swarm-test",
  "logos-blockchain-cryptarchia-sync",
+ "logos-blockchain-log-targets",
  "logos-blockchain-utils",
  "multiaddr",
  "natpmp",
@@ -4075,7 +4064,7 @@ dependencies = [
 name = "logos-blockchain-mmr"
 version = "0.2.1"
 dependencies = [
- "ark-ff 0.4.2",
+ "ark-ff",
  "logos-blockchain-groth16",
  "logos-blockchain-poseidon2",
  "proptest",
@@ -4095,6 +4084,7 @@ dependencies = [
  "logos-blockchain-core",
  "logos-blockchain-cryptarchia-sync",
  "logos-blockchain-libp2p",
+ "logos-blockchain-log-targets",
  "logos-blockchain-tracing",
  "logos-blockchain-utils",
  "overwatch",
@@ -4112,11 +4102,13 @@ dependencies = [
 name = "logos-blockchain-poc"
 version = "0.2.1"
 dependencies = [
+ "divan",
+ "logos-blockchain-circuits-poc-sys",
  "logos-blockchain-circuits-prover",
- "logos-blockchain-circuits-utils",
+ "logos-blockchain-circuits-types",
  "logos-blockchain-groth16",
+ "logos-blockchain-log-targets",
  "logos-blockchain-proofs-error",
- "logos-blockchain-witness-generator",
  "num-bigint",
  "serde",
  "serde_json",
@@ -4128,12 +4120,14 @@ name = "logos-blockchain-pol"
 version = "0.2.1"
 dependencies = [
  "astro-float",
+ "divan",
+ "logos-blockchain-circuits-pol-sys",
  "logos-blockchain-circuits-prover",
- "logos-blockchain-circuits-utils",
+ "logos-blockchain-circuits-types",
  "logos-blockchain-groth16",
+ "logos-blockchain-log-targets",
  "logos-blockchain-proofs-error",
  "logos-blockchain-utils",
- "logos-blockchain-witness-generator",
  "num-bigint",
  "num-traits",
  "serde",
@@ -4145,13 +4139,15 @@ dependencies = [
 name = "logos-blockchain-poq"
 version = "0.2.1"
 dependencies = [
+ "divan",
+ "logos-blockchain-circuits-poq-sys",
  "logos-blockchain-circuits-prover",
- "logos-blockchain-circuits-utils",
+ "logos-blockchain-circuits-types",
  "logos-blockchain-groth16",
+ "logos-blockchain-log-targets",
  "logos-blockchain-pol",
  "logos-blockchain-proofs-error",
  "logos-blockchain-utils",
- "logos-blockchain-witness-generator",
  "num-bigint",
  "serde",
  "serde_json",
@@ -4163,8 +4159,8 @@ dependencies = [
 name = "logos-blockchain-poseidon2"
 version = "0.2.1"
 dependencies = [
- "ark-bn254 0.4.0",
- "ark-ff 0.4.2",
+ "ark-bn254",
+ "ark-ff",
  "jf-poseidon2",
  "num-bigint",
 ]
@@ -4173,6 +4169,7 @@ dependencies = [
 name = "logos-blockchain-proofs-error"
 version = "0.2.1"
 dependencies = [
+ "logos-blockchain-circuits-types",
  "logos-blockchain-groth16",
  "serde_json",
  "thiserror 2.0.18",
@@ -4185,6 +4182,7 @@ dependencies = [
  "async-trait",
  "futures",
  "log",
+ "logos-blockchain-log-targets",
  "overwatch",
  "overwatch-derive",
  "serde",
@@ -4203,6 +4201,7 @@ dependencies = [
  "futures",
  "logos-blockchain-core",
  "logos-blockchain-cryptarchia-engine",
+ "logos-blockchain-log-targets",
  "logos-blockchain-tracing",
  "overwatch",
  "rocksdb",
@@ -4221,6 +4220,7 @@ dependencies = [
  "futures",
  "log",
  "logos-blockchain-cryptarchia-engine",
+ "logos-blockchain-log-targets",
  "logos-blockchain-tracing",
  "logos-blockchain-utils",
  "overwatch",
@@ -4264,16 +4264,19 @@ name = "logos-blockchain-utils"
 version = "0.2.1"
 dependencies = [
  "async-trait",
+ "bincode",
  "blake2",
  "cipher",
  "const-hex",
  "futures",
  "humantime",
+ "logos-blockchain-log-targets",
  "nistrs",
  "overwatch",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
  "serde",
+ "serde_ignored",
  "serde_json",
  "serde_with",
  "serde_yaml",
@@ -4281,13 +4284,14 @@ dependencies = [
  "thiserror 2.0.18",
  "time",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "logos-blockchain-utxotree"
 version = "0.2.1"
 dependencies = [
- "ark-ff 0.4.2",
+ "ark-ff",
  "logos-blockchain-groth16",
  "logos-blockchain-poseidon2",
  "num-bigint",
@@ -4300,22 +4304,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "logos-blockchain-witness-generator"
-version = "0.2.1"
-dependencies = [
- "tempfile",
-]
-
-[[package]]
 name = "logos-blockchain-zksign"
 version = "0.2.1"
 dependencies = [
+ "divan",
  "logos-blockchain-circuits-prover",
- "logos-blockchain-circuits-utils",
+ "logos-blockchain-circuits-signature-sys",
+ "logos-blockchain-circuits-types",
  "logos-blockchain-groth16",
+ "logos-blockchain-log-targets",
  "logos-blockchain-poseidon2",
  "logos-blockchain-proofs-error",
- "logos-blockchain-witness-generator",
  "num-bigint",
  "rand 0.8.5",
  "serde",
@@ -4334,7 +4333,9 @@ dependencies = [
  "logos-blockchain-common-http-client",
  "logos-blockchain-core",
  "logos-blockchain-groth16",
+ "logos-blockchain-http-api-common",
  "logos-blockchain-key-management-system-service",
+ "logos-blockchain-log-targets",
  "num-bigint",
  "rand 0.8.5",
  "reqwest",
@@ -4425,6 +4426,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "714098028fe011992e1c3962653c96b2d578c4b4bce9036e15ff220319b1e0e3"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "merlin"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58c38e2799fc0978b65dfff8023ec7843e2330bb462f19198840b34b6582397d"
+dependencies = [
+ "byteorder",
+ "keccak",
+ "rand_core 0.6.4",
+ "zeroize",
 ]
 
 [[package]]
@@ -4714,24 +4727,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nimue"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0dc7d3b2b7bd112c0cecf7d6f4f16a174ee7a98e27615b1d08256d0176588f2"
-dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "digest",
- "generic-array 0.14.7",
- "hex",
- "keccak",
- "log",
- "rand 0.8.5",
- "zeroize",
-]
-
-[[package]]
 name = "nistrs"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4798,7 +4793,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6078,8 +6073,8 @@ version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7a3ef170810c387d31b64c0b59734abb0839dac2a8d137909e271bfdec9b1e0"
 dependencies = [
- "ark-bn254 0.5.0",
- "ark-ff 0.5.0",
+ "ark-bn254",
+ "ark-ff",
  "byteorder",
  "futures",
  "light-poseidon",
@@ -6122,6 +6117,18 @@ dependencies = [
  "hashlink 0.10.0",
  "libsqlite3-sys",
  "smallvec",
+]
+
+[[package]]
+name = "rust-rapidsnark"
+version = "0.1.3"
+source = "git+https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark.git?rev=e91187f8ccb5bbfc7bb00dac88169112428da78f#e91187f8ccb5bbfc7bb00dac88169112428da78f"
+dependencies = [
+ "anyhow",
+ "cc",
+ "chkstk_stub",
+ "num-bigint",
+ "num-traits",
 ]
 
 [[package]]
@@ -6191,7 +6198,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6200,6 +6207,7 @@ version = "0.23.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "758025cb5fccfd3bc2fd74708fd4682be41d99e5dff73c377c0646c6012c73a4"
 dependencies = [
+ "log",
  "once_cell",
  "ring",
  "rustls-pki-types",
@@ -6298,15 +6306,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde-big-array"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11fc7cc2c76d73e0f27ee52abbd64eec84d46f370c88371120433196934e4b7f"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "serde_arrays"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6333,6 +6332,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+]
+
+[[package]]
+name = "serde_ignored"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "115dffd5f3853e06e746965a20dcbae6ee747ae30b543d91b0e089668bb07798"
+dependencies = [
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -6420,6 +6429,16 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
+]
+
+[[package]]
+name = "sha3"
+version = "0.10.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77fd7028345d415a4034cf8777cd4f8ab1851274233b45f84e3d955502d93874"
+dependencies = [
+ "digest",
+ "keccak",
 ]
 
 [[package]]
@@ -6541,7 +6560,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a766e1110788c36f4fa1c2b71b387a7815aa65f88ce0229841826633d93723e"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6561,6 +6580,24 @@ checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
 dependencies = [
  "base64ct",
  "der",
+]
+
+[[package]]
+name = "spongefish"
+version = "0.2.0"
+source = "git+https://github.com/arkworks-rs/spongefish.git?rev=3ded547f7f56d7f8a1fc4c9a5c0ce965310bba5f#3ded547f7f56d7f8a1fc4c9a5c0ce965310bba5f"
+dependencies = [
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "digest",
+ "hex",
+ "keccak",
+ "rand 0.8.5",
+ "sha3",
+ "thiserror 2.0.18",
+ "zerocopy",
+ "zeroize",
 ]
 
 [[package]]
@@ -6793,6 +6830,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b2093cf4c8eb1e67749a6762251bc9cd836b6fc171623bd0a9d324d37af2417"
 
 [[package]]
+name = "tar"
+version = "0.4.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840"
+dependencies = [
+ "filetime",
+ "libc",
+ "xattr",
+]
+
+[[package]]
 name = "tempfile"
 version = "3.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6802,7 +6850,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix 1.1.4",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -7421,6 +7469,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
+name = "ureq"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dea7109cdcd5864d4eeb1b58a1648dc9bf520360d7af16ec26d0a9354bafcfc0"
+dependencies = [
+ "base64",
+ "flate2",
+ "log",
+ "percent-encoding",
+ "rustls",
+ "rustls-pki-types",
+ "ureq-proto",
+ "utf8-zero",
+ "webpki-roots",
+]
+
+[[package]]
+name = "ureq-proto"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e994ba84b0bd1b1b0cf92878b7ef898a5c1760108fe7b6010327e274917a808c"
+dependencies = [
+ "base64",
+ "http 1.4.0",
+ "httparse",
+ "log",
+]
+
+[[package]]
 name = "url"
 version = "2.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7432,6 +7509,12 @@ dependencies = [
  "serde",
  "serde_derive",
 ]
+
+[[package]]
+name = "utf8-zero"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8c0a043c9540bae7c578c88f91dda8bd82e59ae27c21baca69c8b191aaf5a6e"
 
 [[package]]
 name = "utf8_iter"
@@ -7479,6 +7562,36 @@ dependencies = [
  "js-sys",
  "serde_core",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "validator"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43fb22e1a008ece370ce08a3e9e4447a910e92621bb49b85d6e48a45397e7cfa"
+dependencies = [
+ "idna",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "url",
+ "validator_derive",
+]
+
+[[package]]
+name = "validator_derive"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7df16e474ef958526d1205f6dda359fdfab79d9aa6d54bafcb92dcd07673dca"
+dependencies = [
+ "darling 0.20.11",
+ "once_cell",
+ "proc-macro-error2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -7719,7 +7832,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -8161,6 +8274,16 @@ dependencies = [
  "rusticata-macros",
  "thiserror 2.0.18",
  "time",
+]
+
+[[package]]
+name = "xattr"
+version = "1.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32e45ad4206f6d2479085147f02bc2ef834ac85886624a23575ae137c8aa8156"
+dependencies = [
+ "libc",
+ "rustix 1.1.4",
 ]
 
 [[package]]

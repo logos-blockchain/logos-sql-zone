@@ -10,11 +10,11 @@ use std::{
 use demo_sqlite_common::state::{InMemoryZoneState, ZoneState as _};
 use fs2::FileExt as _;
 use lb_common_http_client::{BasicAuthCredentials, CommonHttpClient};
-use lb_core::mantle::ops::channel::ChannelId;
+use lb_core::mantle::ops::channel::{ChannelId, inscribe::Inscription};
 use lb_key_management_system_service::keys::{ED25519_SECRET_KEY_SIZE, Ed25519Key};
 use logos_blockchain_zone_sdk::{
     adapter::NodeHttpClient,
-    sequencer::{Event, SequencerCheckpoint, SequencerHandle, ZoneSequencer},
+    sequencer::{Event, FinalizedOp, OrphanedTx, SequencerCheckpoint, SequencerClient, ZoneSequencer},
 };
 use reqwest::Url;
 use thiserror::Error;
@@ -26,13 +26,15 @@ pub enum SequencerError {
     Url(String),
     #[error("IO error: {0}")]
     Io(#[from] io::Error),
+    #[error("Inscription too large: {0}")]
+    InscriptionTooLarge(String),
 }
 
 pub type Result<T> = std::result::Result<T, SequencerError>;
 
 pub struct Sequencer {
     sequencer: ZoneSequencer<NodeHttpClient>,
-    handle: SequencerHandle<NodeHttpClient>,
+    client: SequencerClient,
     state: InMemoryZoneState,
     queue_file: String,
     checkpoint_path: String,
@@ -103,11 +105,12 @@ impl Sequencer {
             .expect("failed to write channel id");
 
         let node = NodeHttpClient::new(CommonHttpClient::new(basic_auth), node_url);
-        let (sequencer, handle) = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+        let sequencer = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+        let client = sequencer.client();
 
         Ok(Self {
             sequencer,
-            handle,
+            client,
             state: InMemoryZoneState::default(),
             queue_file: queue_file.to_owned(),
             checkpoint_path: checkpoint_path.to_owned(),
@@ -115,30 +118,33 @@ impl Sequencer {
     }
 
     pub async fn run(self) {
-        let Self { mut sequencer, handle, mut state, queue_file, checkpoint_path } = self;
+        let Self { mut sequencer, client, mut state, queue_file, checkpoint_path } = self;
 
-        let mut batch_handle = handle.clone();
+        let batch_client = client;
         tokio::spawn(async move {
+            // Wait until the sequencer completes cold-start backfill before publishing.
+            let mut ready_rx = batch_client.subscribe_ready();
+            let _ = ready_rx.wait_for(|r| *r).await;
+
             let mut interval = tokio::time::interval(Duration::from_millis(100));
             loop {
                 interval.tick().await;
-                batch_handle.wait_ready().await;
-                if let Err(e) = process_pending_batch(&queue_file, &batch_handle).await {
+                if let Err(e) = process_pending_batch(&queue_file, &batch_client).await {
                     error!("Batch processing failed: {e}");
                 }
             }
         });
 
         loop {
-            let Some(event) = sequencer.next_event().await else { continue; };
-            handle_event(event, &handle, &mut state, &checkpoint_path).await;
+            let event = sequencer.next_event().await;
+            handle_event(event, &mut sequencer, &mut state, &checkpoint_path);
         }
     }
 }
 
-async fn handle_event(
+fn handle_event(
     event: Event,
-    handle: &SequencerHandle<NodeHttpClient>,
+    sequencer: &mut ZoneSequencer<NodeHttpClient>,
     state: &mut InMemoryZoneState,
     checkpoint_path: &str,
 ) {
@@ -146,34 +152,32 @@ async fn handle_event(
         Event::Ready => {
             info!("Sequencer ready");
         }
-        Event::ChannelUpdate { orphaned, adopted } => {
-            state.on_adopted(&adopted);
-            for info in &orphaned {
+        Event::BlocksProcessed { checkpoint, channel_update, finalized } => {
+            state.on_adopted(&channel_update.adopted);
+            for orphan in &channel_update.orphaned {
+                let OrphanedTx::Inscription(info) = orphan else { continue };
                 state.on_orphaned(&info.this_msg);
                 debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Auto-republishing orphan");
-                if let Err(e) = handle.publish_message(info.payload.clone()).await {
+                if let Err(e) = sequencer.handle().publish(info.payload.clone()) {
                     error!("failed to auto-republish: {e}");
                 }
             }
-        }
-        Event::TxsFinalized { inscriptions, .. } => {
+            let inscriptions: Vec<_> = finalized
+                .into_iter()
+                .flat_map(|tx| tx.ops.into_iter())
+                .filter_map(|op| match op {
+                    FinalizedOp::Inscription(info) => Some(info),
+                    _ => None,
+                })
+                .collect();
             state.on_finalized(&inscriptions);
-        }
-        Event::Published { info, checkpoint } => {
-            debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Published");
-            state.on_published(&info);
             save_checkpoint(Path::new(checkpoint_path), &checkpoint);
         }
-        Event::FinalizedInscriptions { inscriptions } => {
-            state.on_finalized(&inscriptions);
-        }
+        Event::MempoolPending(_) | Event::TurnNotification { .. } => {}
     }
 }
 
-async fn process_pending_batch(
-    queue_file: &str,
-    handle: &SequencerHandle<NodeHttpClient>,
-) -> Result<()> {
+async fn process_pending_batch(queue_file: &str, client: &SequencerClient) -> Result<()> {
     let pending = queue_drain(queue_file)?;
     if pending.is_empty() {
         return Ok(());
@@ -182,8 +186,10 @@ async fn process_pending_batch(
     let count = pending.len();
     debug!("Processing batch of {} queries", count);
 
-    let sql_text = pending.join("\n").as_bytes().to_vec();
-    if let Err(e) = handle.publish_message(sql_text).await {
+    let sql_bytes = pending.join("\n").into_bytes();
+    let inscription = Inscription::try_from(sql_bytes)
+        .map_err(|e| SequencerError::InscriptionTooLarge(e.to_string()))?;
+    if let Err(e) = client.publish(inscription).await {
         error!("failed to publish batch: {e}");
     } else {
         info!("Submitted batch of {} statement(s)", count);

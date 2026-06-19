@@ -90,6 +90,11 @@ lb-tools                           = { default-features = false, package = "logo
 lb-tui-zone                        = { default-features = false, package = "logos-blockchain-tui-zone", path = "./logos-blockchain/testnet/tui-zone" }
 lbp-error                          = { default-features = false, package = "logos-blockchain-proofs-error", path = "./logos-blockchain/zk/proofs/error" }
 lb_network                         = { default-features = false, package = "logos-blockchain-network-service", path = "./logos-blockchain/services/network" }
+lbc-poc-sys                        = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-circuits.git", package = "logos-blockchain-circuits-poc-sys", tag = "v0.5.3" }
+lbc-pol-sys                        = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-circuits.git", package = "logos-blockchain-circuits-pol-sys", tag = "v0.5.3" }
+lbc-poq-sys                        = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-circuits.git", package = "logos-blockchain-circuits-poq-sys", tag = "v0.5.3" }
+lbc-signature-sys                  = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-circuits.git", package = "logos-blockchain-circuits-signature-sys", tag = "v0.5.3" }
+lbc-types                          = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-circuits.git", package = "logos-blockchain-circuits-types", tag = "v0.5.3" }
 testing-framework-core             = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
 testing-framework-runner-compose   = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
 testing-framework-runner-k8s       = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-testing.git", rev = "f731791" }
@@ -114,11 +119,11 @@ log               = { default-features = false, version = "0.4" }
 overwatch         = { default-features = false, git = "https://github.com/logos-co/Overwatch", rev = "448c192" }
 overwatch-derive  = { default-features = false, git = "https://github.com/logos-co/Overwatch", rev = "448c192" }
 anyhow                             = { default-features = false, version = "1" }
-ark-bn254                          = { default-features = false, version = "0.4" }
-ark-ec                             = { default-features = false, version = "0.4" }
-ark-ff                             = { default-features = false, version = "0.4" }
-ark-groth16                        = { default-features = false, version = "0.4" }
-ark-serialize                      = { default-features = false, version = "0.4.2" }
+ark-bn254                          = { default-features = false, version = "0.5" }
+ark-ec                             = { default-features = false, version = "0.5" }
+ark-ff                             = { default-features = false, version = "0.5" }
+ark-groth16                        = { default-features = false, version = "0.5" }
+ark-serialize                      = { default-features = false, version = "0.5" }
 astro-float                        = { default-features = false, version = "0.9" }
 async-ctrlc                        = { default-features = false, version = "1.2" }
 async-stream                       = { default-features = false, version = "0.3.6" }
@@ -146,7 +151,8 @@ humantime                          = { default-features = false, version = "2.1"
 hyper                              = { default-features = false, version = "1.0" }
 igd-next                           = { default-features = false, version = "0.16.1" }
 itertools                          = { default-features = false, version = "0.14" }
-jf-poseidon2                       = { default-features = false, git = "https://github.com/EspressoSystems/jellyfish.git", rev = "dc166cf0f803c3e5067f9dfcc21e3dade986a447" }
+jf-poseidon2                       = { default-features = false, git = "https://github.com/EspressoSystems/jellyfish.git", rev = "8d80230358e900f8d63765a937f63f4978ca1daa" }
+rust-rapidsnark                    = { default-features = false, git = "https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark.git", rev = "e91187f8ccb5bbfc7bb00dac88169112428da78f" }
 libp2p-swarm-test                  = { default-features = false, version = "0.5" }
 multiaddr                          = { default-features = false, version = "0.18" }
 natpmp                             = { default-features = false, version = "0.5" }
@@ -178,6 +184,7 @@ rs-merkle-tree                     = { default-features = false, version = "0.1"
 serde_arrays                       = { default-features = false, version = "0.2.0" }
 serde_path_to_error                = { default-features = false, version = "0.1" }
 serde_yml                          = { default-features = false, version = "0.0.12" }
+serde_urlencoded                   = { default-features = false, version = "0.7.1" }
 serial_test                        = { default-features = false, version = "3.1.1" }
 sntpc                              = { default-features = false, version = "0.5" }
 strum                              = { default-features = false, version = "0.27" }
