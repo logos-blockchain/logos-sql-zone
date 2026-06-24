@@ -14,7 +14,7 @@ use lb_core::mantle::ops::channel::{ChannelId, inscribe::Inscription};
 use lb_key_management_system_service::keys::{ED25519_SECRET_KEY_SIZE, Ed25519Key};
 use logos_blockchain_zone_sdk::{
     adapter::NodeHttpClient,
-    sequencer::{Event, FinalizedOp, OrphanedTx, SequencerCheckpoint, SequencerClient, ZoneSequencer},
+    sequencer::{Event, FinalizedOp, SequencerCheckpoint, SequencerClient, ZoneSequencer},
 };
 use reqwest::Url;
 use thiserror::Error;
@@ -124,7 +124,7 @@ impl Sequencer {
         tokio::spawn(async move {
             // Wait until the sequencer completes cold-start backfill before publishing.
             let mut ready_rx = batch_client.subscribe_ready();
-            let _ = ready_rx.wait_for(|r| *r).await;
+            drop(ready_rx.wait_for(|r| *r).await);
 
             let mut interval = tokio::time::interval(Duration::from_millis(100));
             loop {
@@ -137,14 +137,13 @@ impl Sequencer {
 
         loop {
             let event = sequencer.next_event().await;
-            handle_event(event, &mut sequencer, &mut state, &checkpoint_path);
+            handle_event(event, &mut state, &checkpoint_path);
         }
     }
 }
 
 fn handle_event(
     event: Event,
-    sequencer: &mut ZoneSequencer<NodeHttpClient>,
     state: &mut InMemoryZoneState,
     checkpoint_path: &str,
 ) {
@@ -152,16 +151,7 @@ fn handle_event(
         Event::Ready => {
             info!("Sequencer ready");
         }
-        Event::BlocksProcessed { checkpoint, channel_update, finalized } => {
-            state.on_adopted(&channel_update.adopted);
-            for orphan in &channel_update.orphaned {
-                let OrphanedTx::Inscription(info) = orphan else { continue };
-                state.on_orphaned(&info.this_msg);
-                debug!(msg_id = %hex::encode(info.this_msg.as_ref()), "Auto-republishing orphan");
-                if let Err(e) = sequencer.handle().publish(info.payload.clone()) {
-                    error!("failed to auto-republish: {e}");
-                }
-            }
+        Event::BlocksProcessed { checkpoint, channel_update: _, finalized } => {
             let inscriptions: Vec<_> = finalized
                 .into_iter()
                 .flat_map(|tx| tx.ops.into_iter())
